@@ -10,4 +10,4 @@ if [ "$(docker ps -a -q -f name=$name)" ]; then
     docker rm $name
 fi
 
-docker run --name $name --restart=unless-stopped -d 'distributor'
+docker run --name $name --restart=on-failure -d 'distributor'

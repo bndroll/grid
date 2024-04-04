@@ -1,22 +1,21 @@
 #!/bin/bash
 
-if [ ! "$(docker network ls -q -f name=grid)" ]; then
-    docker network create -d bridge grid
-fi
-
 PS3="please enter a command: "
-commands=("adapter up" "node up" "distributor up" "hello" "quit")
+commands=("adapter up" "distributor up" "node up" "node down" "hello" "quit")
 select c in "${commands[@]}"
 do
     case $c in
         "adapter up")
             ./commands/adapterup.sh
             ;;
+        "distributor up")
+            ./commands/distributorup.sh
+            ;;
         "node up")
             ./commands/nodeup.sh
             ;;
-        "distributor up")
-            ./commands/distributorup.sh
+        "node down")
+            ./commands/nodedown.sh
             ;;
         "hello")
             echo "hello from grid app"

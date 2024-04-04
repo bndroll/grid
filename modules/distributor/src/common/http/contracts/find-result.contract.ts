@@ -4,4 +4,4 @@ export interface FindResultContract {
 	distributorId: string;
 }
 
-export type FindResultResponse = Task | null;
+export type FindResultResponse = Task[] | null;

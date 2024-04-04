@@ -23,10 +23,11 @@ export class Distributor {
 	}
 
 	async produceTasks() {
-		for (let i = 0; i < 2000; i++) {
+		for (let i = 0; i < 10000; i++) {
 			await this.produce(`null`);
 		}
-		await this.produce(`"something"`);
+		await this.produce(`"something 1"`);
+		await this.produce(`"something 2"`);
 	}
 
 	async produce(code: string) {
@@ -37,9 +38,11 @@ export class Distributor {
 	}
 
 	async findResult() {
-		const task = await this.httpService.findResult({distributorId: this.id});
-		if (task) {
-			this.logger.log('Find correct answer, task id =', task.id, 'task result =', task.result);
+		const tasks = await this.httpService.findResult({distributorId: this.id});
+		if (tasks && tasks.length !== 0) {
+			for (const task of tasks) {
+				this.logger.log('Find correct answer, task id =', task.id, 'task result =', task.result);
+			}
 			process.exit(0);
 		}
 

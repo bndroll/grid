@@ -16,7 +16,6 @@ export class Node {
 		this.id = generateShortId();
 		this.task = null;
 		this.scheduleConfig = {
-			counter: 0,
 			timeout: 0.05
 		};
 
@@ -35,7 +34,12 @@ export class Node {
 		if (this.task) {
 			const updatedTask = await this.httpService.update({
 				id: this.task.id,
+				distributorId: this.task.distributorId,
 				nodeId: this.id,
+				code: this.task.code,
+				result: this.task.result,
+				processing: true,
+				status: TaskStatus.Processing,
 				lastUpdated: new Date()
 			});
 			if (!updatedTask) {
@@ -51,9 +55,12 @@ export class Node {
 			this.task = await this.httpService.consume({nodeId: this.id});
 			if (this.task) {
 				await this.execute();
-				this.scheduleConfig.timeout = 0.05;
+				if (this.scheduleConfig.timeout > 0.05) {
+					this.logger.log('Connection to adapter establishment');
+					this.scheduleConfig.timeout = 0.05;
+				}
 			} else {
-				this.scheduleConfig.timeout = this.scheduleConfig.timeout > 5 ? 5 : this.scheduleConfig.timeout * 2;
+				this.scheduleConfig.timeout = this.scheduleConfig.timeout > 5 ? 5 : this.scheduleConfig.timeout * 5;
 			}
 		}
 
