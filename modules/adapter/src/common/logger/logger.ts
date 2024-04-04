@@ -22,7 +22,7 @@ export class Logger {
 				format.timestamp({format: 'YYYY-MM-DD, HH:mm:ss'}),
 				format.simple(),
 				format.printf(({level, message, label, timestamp}) => {
-					return `[BOT]  - ${timestamp.padEnd(23)} [${level}] [${label}]: ${message}`;
+					return `[GRID]  - ${timestamp.padEnd(23)} [${level}] [${label}]: ${message}`;
 				})
 			),
 			exitOnError: false

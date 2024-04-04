@@ -7,4 +7,4 @@ if [ "$(docker ps -a -q -f name=adapter)" ]; then
     docker rm adapter
 fi
 
-docker run --name adapter -p 127.0.0.1:4321:4321/tcp --restart=unless-stopped -d 'adapter'
+docker run --name adapter -p 0.0.0.0:4321:4321/tcp --restart=unless-stopped -d 'adapter'

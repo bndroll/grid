@@ -1,6 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { Config } from '../config/config';
-import { Task } from '../../core/models/task.model';
 import { Logger } from '../logger/logger';
 import { ProduceContract } from './contracts/produce.contract';
 import { FindResultContract, FindResultResponse } from './contracts/find-result.contract';
@@ -15,19 +14,19 @@ export class HttpService {
 		});
 	}
 
-	async produce(dto: ProduceContract): Promise<Task | null> {
+	async produce(dto: ProduceContract): Promise<boolean> {
 		try {
-			const {data} = await this.httpInstance.post<Task,
-				AxiosResponse<Task>>('/produce', {
+			await this.httpInstance.post<void,
+				AxiosResponse<void>>('/produce', {
 				distributorId: dto.distributorId,
 				code: dto.code
 			});
-			return data;
+			return true;
 		} catch (err) {
 			if (err instanceof Error) {
 				this.logger.warn('Error while requesting adapter, message =', err.message);
 			}
-			return null;
+			return false;
 		}
 	}
 

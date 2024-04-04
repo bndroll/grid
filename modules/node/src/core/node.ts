@@ -2,6 +2,7 @@ import { Logger } from '../common/logger/logger';
 import { generateShortId } from '../utils/generate-short-id';
 import { Task, TaskStatus } from './models/task.model';
 import { HttpService } from '../common/http/http.service';
+import { ScheduleConfig } from './types/schedule';
 
 export class Node {
 	private readonly logger;
@@ -9,10 +10,15 @@ export class Node {
 
 	private readonly id: string;
 	private task: Task | null;
+	private readonly scheduleConfig: ScheduleConfig;
 
 	constructor() {
 		this.id = generateShortId();
 		this.task = null;
+		this.scheduleConfig = {
+			counter: 0,
+			timeout: 0.05
+		};
 
 		this.logger = new Logger(`${Node.name}_${this.id}`);
 		this.httpService = new HttpService();
@@ -43,12 +49,15 @@ export class Node {
 	async consume() {
 		if (!this.task) {
 			this.task = await this.httpService.consume({nodeId: this.id});
-			await this.execute();
+			if (this.task) {
+				await this.execute();
+				this.scheduleConfig.timeout = 0.05;
+			} else {
+				this.scheduleConfig.timeout = this.scheduleConfig.timeout > 5 ? 5 : this.scheduleConfig.timeout * 2;
+			}
 		}
 
-		this.logger.log(`Consume new task, task id = ${this.task ? this.task.id : null}`);
-
-		setTimeout(this.consume.bind(this), 10 * 1000);
+		setTimeout(this.consume.bind(this), this.scheduleConfig.timeout * 1000);
 	}
 
 	async execute() {
@@ -57,15 +66,16 @@ export class Node {
 		}
 
 		const res = eval(this.task.code);
-		const updatedTask = await this.httpService.update({
+		await this.httpService.update({
 			id: this.task.id,
+			distributorId: this.task.distributorId,
 			nodeId: this.id,
 			status: TaskStatus.Finished,
 			processing: false,
-			result: res ? res : null
+			code: this.task.code,
+			result: res ? res : null,
+			lastUpdated: new Date()
 		});
-
-		this.logger.log(`Task finished, task id = ${updatedTask ? updatedTask.id : null}`);
 
 		this.task = null;
 	}

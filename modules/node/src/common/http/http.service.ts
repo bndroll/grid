@@ -30,10 +30,10 @@ export class HttpService {
 		}
 	}
 
-	async update(dto: UpdateTaskContract) {
+	async update(dto: UpdateTaskContract): Promise<Task | null> {
 		try {
 			const {data} = await this.httpInstance.post<ConsumeResponse,
-				AxiosResponse<ConsumeResponse>>('/consume', {
+				AxiosResponse<ConsumeResponse>>('/update', {
 				id: dto.id,
 				distributorId: dto.distributorId,
 				nodeId: dto.nodeId,

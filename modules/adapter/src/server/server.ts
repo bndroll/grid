@@ -38,11 +38,11 @@ export class ServerApplication {
 
 	private initRoutes(): void {
 		this.app.post('/produce', async (req: Request, res: Response) => {
-			const result = await this.adapter.produce({
+			await this.adapter.produce({
 				distributorId: req.body.distributorId,
 				code: req.body.code
 			});
-			return res.send(result);
+			res.send();
 		});
 		this.app.post('/consume', async (req: Request, res: Response) => {
 			const result = await this.adapter.consume({nodeId: req.body.nodeId});

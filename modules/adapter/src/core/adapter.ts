@@ -11,7 +11,7 @@ export class Adapter {
 
 	private readonly logger = new Logger(Adapter.name);
 
-	private readonly data: Task[];
+	private data: Task[];
 	private mutex: boolean;
 	private id: number;
 
@@ -33,6 +33,36 @@ export class Adapter {
 
 	run() {
 		this.scheduleReset();
+		this.scheduleAnalytics();
+		this.scheduleInvalidate();
+	}
+
+	private async scheduleAnalytics() {
+		const allCount = this.data.length;
+		const openCount = this.data.filter(item => item.status === TaskStatus.Open).length;
+		const finishedCount = allCount - openCount;
+
+		this.logger.debug(` 
+----------- Analytics -----------
+Current task count: ${allCount}
+Current task open count: ${openCount}
+Current task finished count: ${finishedCount}
+
+Current task finished speed: ~ ${finishedCount / 10} RPS
+----------------------`);
+
+		setTimeout(this.scheduleAnalytics.bind(this), 10 * 1000);
+	}
+
+	private async scheduleInvalidate() {
+		const newData = this.data.filter(item =>
+			item.status !== 'Finished' ||
+			(item.status === 'Finished' && item.result)
+		);
+		this.logger.log(`Invalidate ${this.data.length - newData.length}`);
+		this.data = newData;
+
+		setTimeout(this.scheduleInvalidate.bind(this), 5 * 1000);
 	}
 
 	private async scheduleReset() {
@@ -50,7 +80,7 @@ export class Adapter {
 		setTimeout(this.scheduleReset.bind(this), Config.TaskExpireValidateTime);
 	}
 
-	async produce(dto: ProduceContract): Promise<Task> {
+	async produce(dto: ProduceContract) {
 		const id = this.generateId();
 		this.data.push({
 			id: id,
@@ -62,18 +92,15 @@ export class Adapter {
 			result: null,
 			lastUpdated: new Date()
 		});
-
-		this.logger.log(`Produce from distributor ${dto.distributorId}, task id =`, this.data[id - 1].id);
-
-		return Object.assign({}, this.data[id - 1]);
 	}
 
 	async update(dto: UpdateTaskContract) {
-		if (dto.nodeId && this.data[dto.id - 1].nodeId !== dto.nodeId) {
+		const taskArrayId = this.search(dto.id);
+		if (dto.nodeId && this.data[taskArrayId].nodeId !== dto.nodeId) {
 			return null;
 		}
-		const updatedTask: Task = Object.assign(this.data[dto.id - 1], dto);
-		this.data[dto.id - 1] = updatedTask;
+		const updatedTask: Task = Object.assign(this.data[taskArrayId], dto);
+		this.data[taskArrayId] = updatedTask;
 
 		return Object.assign({}, updatedTask);
 	}
@@ -94,6 +121,7 @@ export class Adapter {
 				this.mutex = false;
 				return null;
 			}
+			const taskArrayId = this.search(task.id);
 
 			const updatedTask: Task = {
 				...task,
@@ -102,8 +130,7 @@ export class Adapter {
 				processing: true,
 				lastUpdated: new Date()
 			};
-			this.data[task.id - 1] = updatedTask;
-			this.logger.log(`Consume from node ${dto.nodeId}, task id = ${updatedTask.id}`);
+			this.data[taskArrayId] = updatedTask;
 			this.mutex = false;
 
 			return updatedTask;
@@ -130,5 +157,24 @@ export class Adapter {
 	private generateId(): number {
 		this.id++;
 		return this.id;
+	}
+
+	private search(id: number): number {
+		let start = 0;
+		let end = this.data.length - 1;
+
+		while (start <= end) {
+			let middle = Math.floor((start + end) / 2);
+
+			if (this.data[middle].id === id) {
+				return middle;
+			} else if (this.data[middle].id < id) {
+				start = middle + 1;
+			} else {
+				end = middle - 1;
+			}
+		}
+
+		return -1;
 	}
 }
