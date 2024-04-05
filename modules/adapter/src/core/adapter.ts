@@ -96,6 +96,9 @@ Current task finished speed: ~ ${finishedCount / 10} RPS
 
 	async update(dto: UpdateTaskContract) {
 		const taskArrayId = this.search(dto.id);
+		if (!this.data[taskArrayId]) {
+			return null;
+		}
 		if (dto.nodeId && this.data[taskArrayId].nodeId !== dto.nodeId) {
 			return null;
 		}
