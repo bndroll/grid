@@ -32,8 +32,9 @@ export class Adapter {
 	}
 
 	run() {
-		this.scheduleReset();
+		this.scheduleStuck();
 		this.scheduleInvalidate();
+		this.scheduleOld();
 	}
 
 	private async scheduleInvalidate() {
@@ -53,7 +54,7 @@ Current task open count: ${openCount}
 Current task finished count: ${finishedCount}
 Invalidate count: ${this.data.length - newData.length}
 
-Current task finished speed: ~ ${finishedCount / 10} RPS
+Current task finished speed: ~ ${finishedCount / 5} RPS
 ----------------------`);
 
 		this.data = newData;
@@ -61,9 +62,16 @@ Current task finished speed: ~ ${finishedCount / 10} RPS
 		setTimeout(this.scheduleInvalidate.bind(this), 5 * 1000);
 	}
 
-	private async scheduleReset() {
-		const tasks = await this.findOldTasks();
-		this.logger.log(`Reset scheduler, find ${tasks.length} old tasks`);
+	private async scheduleStuck() {
+		const now = new Date();
+		const tasks = this.data.filter(item => {
+			return (
+				item.processing &&
+				now.getTime() - (new Date(item.lastUpdated)).getTime() >= Config.TaskExpireTime
+			);
+		});
+
+		this.logger.log(`Stuck scheduler, find ${tasks.length} tasks`);
 		for (const task of tasks) {
 			await this.update({
 				id: task.id,
@@ -77,7 +85,24 @@ Current task finished speed: ~ ${finishedCount / 10} RPS
 			});
 		}
 
-		setTimeout(this.scheduleReset.bind(this), Config.TaskExpireValidateTime);
+		setTimeout(this.scheduleStuck.bind(this), Config.TaskExpireValidateTime);
+	}
+
+	private async scheduleOld() {
+		const now = new Date();
+		const tasks = this.data.filter(item =>
+			item.result &&
+			(now.getTime() - (new Date(item.lastUpdated)).getTime() >= Config.TaskExpireTime * 2)
+		);
+
+		this.logger.log(`Old scheduler, find ${tasks.length} tasks`);
+
+		this.data = this.data.filter(item => !(
+			item.result &&
+			(now.getTime() - (new Date(item.lastUpdated)).getTime() >= Config.TaskExpireTime * 2)
+		));
+
+		setTimeout(this.scheduleOld.bind(this), Config.TaskExpireTime);
 	}
 
 	async produce(dto: ProduceContract) {
@@ -143,25 +168,20 @@ Current task finished speed: ~ ${finishedCount / 10} RPS
 		}
 	}
 
-	async findResult(dto: FindResultContract) {
-		const arr = this.data.filter(item => item.distributorId === dto.distributorId && item.status !== TaskStatus.Finished);
-		if (arr.length === 0) {
-			const res = this.data.filter(item => item.distributorId === dto.distributorId && item.result);
-			this.data = this.data.filter(item => !(item.distributorId === dto.distributorId));
-			return res;
-		}
-
-		return null;
-	}
-
-	private async findOldTasks() {
-		const now = new Date();
-		return this.data.filter(item => {
-			return (
-				item.processing &&
-				now.getTime() - (new Date(item.lastUpdated)).getTime() >= Config.TaskExpireTime
-			);
-		});
+	async findResult(dto: FindResultContract): Promise<Task[] | null> {
+		const res = this.data.filter(item =>
+			item.distributorId === dto.distributorId &&
+			item.status === TaskStatus.Finished &&
+			!item.processing &&
+			item.result
+		);
+		this.data = this.data.filter(item => !(
+			item.distributorId === dto.distributorId &&
+			item.status === TaskStatus.Finished &&
+			!item.processing &&
+			item.result
+		));
+		return res.length === 0 ? null : res;
 	}
 
 	private generateId(): number {

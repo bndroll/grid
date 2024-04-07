@@ -3,6 +3,7 @@ import { generateShortId } from '../utils/generate-short-id';
 import { Task, TaskStatus } from './models/task.model';
 import { HttpService } from '../common/http/http.service';
 import { ScheduleConfig } from './types/schedule';
+import { ExecFunction } from './types/exec-function';
 
 export class Node {
 	private readonly logger;
@@ -54,11 +55,11 @@ export class Node {
 		if (!this.task) {
 			this.task = await this.httpService.consume({nodeId: this.id});
 			if (this.task) {
-				await this.execute();
 				if (this.scheduleConfig.timeout > 0.05) {
 					this.logger.log('Connection to adapter establishment');
 					this.scheduleConfig.timeout = 0.05;
 				}
+				await this.execute();
 			} else {
 				this.scheduleConfig.timeout = this.scheduleConfig.timeout > 5 ? 5 : this.scheduleConfig.timeout * 5;
 			}
@@ -72,7 +73,9 @@ export class Node {
 			return;
 		}
 
-		const res = eval(this.task.code);
+		const f: ExecFunction = eval(this.task.code);
+		const result = f.exec();
+
 		await this.httpService.update({
 			id: this.task.id,
 			distributorId: this.task.distributorId,
@@ -80,7 +83,7 @@ export class Node {
 			status: TaskStatus.Finished,
 			processing: false,
 			code: this.task.code,
-			result: res ? res : null,
+			result: result ? JSON.stringify(result) : null,
 			lastUpdated: new Date()
 		});
 

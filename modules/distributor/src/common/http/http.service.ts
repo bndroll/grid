@@ -20,7 +20,7 @@ export class HttpService {
 				AxiosResponse<void>>('/produce', {
 				distributorId: dto.distributorId,
 				code: dto.code
-			});
+			})
 			return true;
 		} catch (err) {
 			if (err instanceof Error) {
