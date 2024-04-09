@@ -8,5 +8,4 @@ RUN npm run build
 FROM node:20-alpine as production
 WORKDIR /app
 COPY --from=build /app .
-EXPOSE 4321
 CMD ["npm", "start"]
