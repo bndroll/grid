@@ -17,13 +17,13 @@ export class Node {
 		this.id = generateShortId();
 		this.task = null;
 		this.scheduleConfig = {
-			timeout: 0.5
+			timeout: 0.1
 		};
 
 		this.logger = new Logger(`${Node.name}_${this.id}`);
 		this.httpService = new HttpService();
 
-		this.logger.log('Initialized');
+		this.logger.log('Node initialized');
 	}
 
 	run() {
@@ -55,9 +55,9 @@ export class Node {
 		if (!this.task) {
 			this.task = await this.httpService.consume({nodeId: this.id});
 			if (this.task) {
-				if (this.scheduleConfig.timeout > 0.5) {
+				if (this.scheduleConfig.timeout > 0.1) {
 					this.logger.log('Connection to adapter establishment');
-					this.scheduleConfig.timeout = 0.5;
+					this.scheduleConfig.timeout = 0.1;
 				}
 				await this.execute();
 			} else {

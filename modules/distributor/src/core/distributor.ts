@@ -20,7 +20,7 @@ export class Distributor {
 		this.logger = new Logger(`${Distributor.name}_${this.id}`);
 		this.httpService = new HttpService();
 
-		this.logger.log('Initialized');
+		this.logger.log('Distributor initialized');
 	}
 
 	run() {

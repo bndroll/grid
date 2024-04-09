@@ -7,37 +7,27 @@ import { ProduceContract } from './contract/produce.contract';
 import { Config } from '../common/config/config';
 
 export class Adapter {
-	private static instance: Adapter;
-
 	private readonly logger = new Logger(Adapter.name);
 
 	private data: Task[];
 	private mutex: boolean;
 	private id: number;
 
-	private constructor() {
+	constructor() {
 		this.data = [];
 		this.mutex = false;
 		this.id = 0;
 
-		this.logger.log('Initialized');
+		this.logger.log('Adapter initialized');
 	}
 
-	static create() {
-		if (!this.instance) {
-			this.instance = new Adapter();
-		}
-
-		return this.instance;
+	async run() {
+		await this.scheduleInvalidateStuck();
+		await this.scheduleInvalidateFinish();
+		await this.scheduleInvalidateOld();
 	}
 
-	run() {
-		this.scheduleStuck();
-		this.scheduleInvalidate();
-		this.scheduleOld();
-	}
-
-	private async scheduleInvalidate() {
+	private async scheduleInvalidateFinish() {
 		const allCount = this.data.length;
 		const openCount = this.data.filter(item => item.status === TaskStatus.Open).length;
 		const finishedCount = allCount - openCount;
@@ -59,10 +49,10 @@ Current task finished speed: ~ ${finishedCount / 5} RPS
 
 		this.data = newData;
 
-		setTimeout(this.scheduleInvalidate.bind(this), 5 * 1000);
+		setTimeout(this.scheduleInvalidateFinish.bind(this), 5 * 1000);
 	}
 
-	private async scheduleStuck() {
+	private async scheduleInvalidateStuck() {
 		const now = new Date();
 		const tasks = this.data.filter(item => {
 			return (
@@ -85,10 +75,10 @@ Current task finished speed: ~ ${finishedCount / 5} RPS
 			});
 		}
 
-		setTimeout(this.scheduleStuck.bind(this), Config.TaskExpireValidateTime);
+		setTimeout(this.scheduleInvalidateStuck.bind(this), Config.TaskExpireValidateTime);
 	}
 
-	private async scheduleOld() {
+	private async scheduleInvalidateOld() {
 		const now = new Date();
 		const tasks = this.data.filter(item =>
 			item.result &&
@@ -102,7 +92,7 @@ Current task finished speed: ~ ${finishedCount / 5} RPS
 			(now.getTime() - (new Date(item.lastUpdated)).getTime() >= Config.TaskExpireTime * 2)
 		));
 
-		setTimeout(this.scheduleOld.bind(this), Config.TaskExpireTime);
+		setTimeout(this.scheduleInvalidateOld.bind(this), Config.TaskExpireTime);
 	}
 
 	async produce(dto: ProduceContract) {

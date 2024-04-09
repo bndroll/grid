@@ -9,21 +9,18 @@ import { Config } from '../common/config/config';
 export class ServerApplication {
 	private readonly logger = new Logger(ServerApplication.name);
 
-	private readonly adapter: Adapter;
-
 	private app: Express;
 	private server: Server | null = null;
 
-	constructor() {
+	constructor(private readonly adapter: Adapter) {
 		this.app = express();
-		this.adapter = Adapter.create();
+		this.adapter = adapter;
 	}
 
-	run() {
+	async run() {
 		this.initMiddleware();
 		this.initRoutes();
 
-		this.adapter.run();
 		this.server = this.app.listen(Config.Port);
 
 		this.logger.log(`Adapter socket listen on http://${Config.Url}:${Config.Port}`);
