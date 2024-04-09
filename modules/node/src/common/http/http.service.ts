@@ -34,7 +34,7 @@ export class HttpService {
 		try {
 			const {data} = await this.httpInstance.post<ConsumeResponse,
 				AxiosResponse<ConsumeResponse>>('/update', {
-				id: dto.id,
+				tid: dto.tid,
 				distributorId: dto.distributorId,
 				nodeId: dto.nodeId,
 				status: dto.status,

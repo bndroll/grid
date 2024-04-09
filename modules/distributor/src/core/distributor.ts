@@ -23,8 +23,8 @@ export class Distributor {
 		this.logger.log('Distributor initialized');
 	}
 
-	run() {
-		this.findResult();
+	async run() {
+		await this.findResult();
 	}
 
 	async produce(code: string) {
@@ -35,13 +35,20 @@ export class Distributor {
 	}
 
 	async findResult() {
-		const tasks = await this.httpService.findResult({distributorId: this.id});
-		if (tasks && tasks.length !== 0) {
-			for (const task of tasks) {
-				// @ts-ignore
-				const solution = JSON.parse(task.result!) as number[][]
-				this.logger.log('Find solution, task id:', task.id, 'solution:', solution);
-				Necklace.printSolutions(solution);
+		const result = await this.httpService.findResult({distributorId: this.id});
+		if (result) {
+			const resultTasks = result.tasks;
+			if (resultTasks && resultTasks.length !== 0) {
+				for (const task of resultTasks) {
+					// @ts-ignore
+					const solution = JSON.parse(task.result!) as number[][]
+					this.logger.log('Find solution, task id:', task.tid, 'solution:', solution);
+					Necklace.printSolutions(solution);
+				}
+			}
+
+			if (result.message === 'stop') {
+				return;
 			}
 		}
 

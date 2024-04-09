@@ -15,7 +15,7 @@ export class Necklace implements Pattern {
 		this.distributor = distributor;
 	}
 
-	run() {
+	async run() {
 		try {
 			const data = fs.readFileSync(__dirname + '/../../../matrix/grid.json', 'utf8');
 			const gridData = JSON.parse(data) as { grid: string[] };
@@ -28,7 +28,7 @@ export class Necklace implements Pattern {
 		}
 		Config.GridLength = grid.length;
 
-		this.generateTasks(grid, Config.BatchSize);
+		await this.generateTasks(grid, Config.BatchSize);
 	}
 
 	async generateTasks(grid: string[], batchSize: number): Promise<void> {

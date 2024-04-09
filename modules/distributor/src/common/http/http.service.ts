@@ -36,7 +36,7 @@ export class HttpService {
 				AxiosResponse<FindResultResponse>>('/find-result', {
 				distributorId: dto.distributorId
 			});
-			return data ? data : null;
+			return data;
 		} catch (err) {
 			if (err instanceof Error) {
 				this.logger.warn('Error while requesting adapter, message =', err.message);

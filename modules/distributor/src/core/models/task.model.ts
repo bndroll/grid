@@ -5,7 +5,7 @@ export enum TaskStatus {
 }
 
 export interface Task {
-	id: number;
+	tid: string;
 	distributorId: string;
 	nodeId: string | null;
 	status: TaskStatus;

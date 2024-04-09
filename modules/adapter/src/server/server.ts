@@ -46,7 +46,7 @@ export class ServerApplication {
 		});
 		this.app.post('/update', async (req: Request, res: Response) => {
 			const result = await this.adapter.update({
-				id: req.body.id,
+				tid: req.body.tid,
 				nodeId: req.body.nodeId,
 				distributorId: req.body.distributorId,
 				status: req.body.status,

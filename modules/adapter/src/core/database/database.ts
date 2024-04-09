@@ -6,7 +6,9 @@ export class Database {
 
 	private readonly logger = new Logger(Database.name);
 
-	private constructor() {}
+	private constructor() {
+		this.logger.log('Database initialized');
+	}
 
 	static create() {
 		if (!Database.instance) {

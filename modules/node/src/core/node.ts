@@ -6,7 +6,7 @@ import { ScheduleConfig } from './types/schedule';
 import { ExecFunction } from './types/exec-function';
 
 export class Node {
-	private readonly logger;
+	private readonly logger: Logger;
 	private readonly httpService: HttpService;
 
 	private readonly id: string;
@@ -26,15 +26,15 @@ export class Node {
 		this.logger.log('Node initialized');
 	}
 
-	run() {
-		this.healthcheck();
-		this.consume();
+	async run() {
+		await this.healthcheck();
+		await this.consume();
 	}
 
 	async healthcheck() {
 		if (this.task) {
 			const updatedTask = await this.httpService.update({
-				id: this.task.id,
+				tid: this.task.tid,
 				distributorId: this.task.distributorId,
 				nodeId: this.id,
 				code: this.task.code,
@@ -77,7 +77,7 @@ export class Node {
 		const result = f.exec();
 
 		await this.httpService.update({
-			id: this.task.id,
+			tid: this.task.tid,
 			distributorId: this.task.distributorId,
 			nodeId: this.id,
 			status: TaskStatus.Finished,

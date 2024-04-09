@@ -1,7 +1,7 @@
 import { TaskStatus } from '../../../core/models/task.model';
 
 export interface UpdateTaskContract {
-	id: number;
+	tid: string;
 	distributorId: string;
 	nodeId: string | null;
 	status: TaskStatus;

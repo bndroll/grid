@@ -1,7 +1,7 @@
-import { TaskStatus } from '../models/task.model';
+import { TaskStatus } from '../database/entities/task.entity';
 
 export interface UpdateTaskContract {
-	id: number;
+	tid: string;
 	distributorId: string;
 	nodeId: string | null;
 	status: TaskStatus;
