@@ -14,9 +14,12 @@ services:
     build:
       context: .
       dockerfile: ./proxy/Dockerfile
+    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/adapter.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;"
     container_name: proxy
     ports:
       - "80:80"
+    env_file: .env
     restart: unless-stopped
     volumes:
       - ./proxy/nginx.conf:/etc/nginx/nginx.conf
+      - ./proxy/adapter.conf.template:/etc/nginx/conf.d/adapter.conf.template
