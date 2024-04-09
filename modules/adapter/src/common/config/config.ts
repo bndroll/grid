@@ -10,7 +10,7 @@ export interface ConfigType {
 }
 
 export const Config: ConfigType = {
-	Port: parseInt(process.env.PORT ?? '4321'),
+	Port: parseInt(process.env.APP_PORT ?? '8010'),
 	Url: process.env.URL ?? '127.0.0.1',
 	TaskExpireTime: parseInt(process.env.TASK_EXPIRE_TIME ?? '60000'),
 	TaskExpireValidateTime: parseInt(process.env.TASK_EXPIRE_TIME ?? '60000') / 2

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PS3="please enter a command: "
-commands=("adapter up" "distributor up" "node up" "node down" "hello" "quit")
+commands=("adapter up" "distributor up" "node up" "node down" "adapter down" "hello" "quit")
 select c in "${commands[@]}"
 do
     case $c in
@@ -16,6 +16,9 @@ do
             ;;
         "node down")
             ./commands/nodedown.sh
+            ;;
+        "adapter down")
+            ./commands/adapterdown.sh
             ;;
         "hello")
             echo "hello from grid app"
