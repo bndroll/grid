@@ -13,7 +13,6 @@ export class ServerApplication {
 
 	private app: Express;
 	private server: Server | null = null;
-	private port: number = Config.Port;
 
 	constructor() {
 		this.app = express();
@@ -25,9 +24,9 @@ export class ServerApplication {
 		this.initRoutes();
 
 		this.adapter.run();
-		this.server = this.app.listen(this.port);
+		this.server = this.app.listen(Config.Port);
 
-		this.logger.log(`Adapter socket listen on http://${Config.Url}:${this.port}`);
+		this.logger.log(`Adapter socket listen on http://${Config.Url}:${Config.Port}`);
 	}
 
 	private initMiddleware(): void {

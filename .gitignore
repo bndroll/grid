@@ -1,5 +1,7 @@
+.idea
+
 */**/node_modules
 */**/*.env
 */**/dist
-.idea
-/modules/db/data
+
+/modules/infrastructure/db/data

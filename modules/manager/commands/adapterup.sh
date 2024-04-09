@@ -1,12 +1,12 @@
 #!/bin/bash
 
-echo "please enter count of adapter replicas to up (1-10): "
+echo "please enter count of adapter replicas to up (1-5): "
 read -r count
 
 docker build --tag 'adapter' ../adapter &>/dev/null
 
 START_PORT=8010
-END_PORT=8020
+END_PORT=8014
 
 function find_unused_port {
   for ((port = START_PORT; port < END_PORT; port++)); do
@@ -19,6 +19,14 @@ function find_unused_port {
   echo "No ports available in the range $START_PORT-$END_PORT" >&2
   return 1
 }
+
+if [ "$(docker ps -a --filter name=db --filter status=running | wc -l)" -eq 1 ]; then
+  docker-compose -f ../infrastructure/docker-compose.yml up db -d --build
+fi
+
+if [ "$(docker ps -a --filter name=proxy --filter status=running | wc -l)" -eq 1 ]; then
+  docker-compose -f ../infrastructure/docker-compose.yml up proxy -d --build
+fi
 
 for i in $(eval echo "{1..$count}"); do
   PORT=$(find_unused_port)
