@@ -11,7 +11,6 @@ import mongoose from 'mongoose';
 export class Adapter {
 	private readonly logger = new Logger(Adapter.name);
 	private readonly taskRepository = new TaskRepository();
-	private mutex: boolean = false;
 
 	constructor() {
 		this.logger.log('Adapter initialized');
