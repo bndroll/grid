@@ -10,6 +10,7 @@ let grid: string[] = [];
 export class Necklace implements Pattern {
 	private readonly logger = new Logger(Necklace.name);
 	private readonly distributor: Distributor;
+	private findResultRunning = false;
 
 	constructor(distributor: Distributor) {
 		this.distributor = distributor;
@@ -41,7 +42,10 @@ export class Necklace implements Pattern {
 				if (batch.length === batchSize) {
 					const code = generateNecklaceCode(batch, grid);
 					await this.distributor.produce(code);
-					await this.distributor.findResult();
+					if (!this.findResultRunning) {
+						await this.distributor.findResult();
+						this.findResultRunning = true;
+					}
 
 					batch = [];
 				}
