@@ -9,7 +9,7 @@ START_PORT=8010
 END_PORT=8014
 
 function find_unused_port {
-  for ((port = START_PORT; port < END_PORT; port++)); do
+  for ((port = START_PORT; port < END_PORT + 1; port++)); do
     if ! docker ps -a --filter "expose=$port/tcp" | grep -q "$port"; then
       echo "$port"
       return
