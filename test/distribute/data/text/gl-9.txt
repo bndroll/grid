@@ -1,0 +1,8 @@
+{ size: 500, time: 1194565 }
+{ size: 1000, time: 686221 }
+{ size: 1500, time: 527158 }
+{ size: 2000, time: 446450 }
+{ size: 2500, time: 411624 }
+{ size: 3000, time: 465410 }
+{ size: 3500, time: 482710 }
+{ size: 4000, time: 503632 }
