@@ -24,7 +24,6 @@ export class Distributor {
 	}
 
 	async run() {
-		await this.findResult();
 	}
 
 	async produce(code: string) {

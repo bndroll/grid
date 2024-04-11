@@ -41,6 +41,7 @@ export class Necklace implements Pattern {
 				if (batch.length === batchSize) {
 					const code = generateNecklaceCode(batch, grid);
 					await this.distributor.produce(code);
+					await this.distributor.findResult();
 
 					batch = [];
 				}

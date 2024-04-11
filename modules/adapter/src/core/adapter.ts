@@ -111,7 +111,7 @@ Current task finished speed: ~ ${finishedCount / 5} RPS
 						lastUpdated: new Date()
 					});
 				} else {
-					tT = null
+					tT = null;
 				}
 			})
 			.then(() => tSession.commitTransaction())
@@ -122,6 +122,14 @@ Current task finished speed: ~ ${finishedCount / 5} RPS
 
 	async findResult(dto: FindResultContract): Promise<FindResultResponse> {
 		const resultTasks = await this.taskRepository.findResult({distributorId: dto.distributorId});
-		return resultTasks.length === 0 ? {tasks: null, message: 'next'} : {tasks: resultTasks, message: 'next'};
+		if (resultTasks.length === 0) {
+			const distributorTasks = await this.taskRepository.findByDistributorId({distributorId: dto.distributorId});
+			if (distributorTasks === 0) {
+				return {tasks: resultTasks, message: 'stop'};
+			}
+			return {tasks: null, message: 'next'};
+		}
+
+		return {tasks: resultTasks, message: 'next'};
 	}
 }
