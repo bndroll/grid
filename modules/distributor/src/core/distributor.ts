@@ -45,10 +45,6 @@ export class Distributor {
 					Necklace.printSolutions(solution);
 				}
 			}
-
-			if (result.message === 'stop') {
-				return;
-			}
 		}
 
 		setTimeout(this.findResult.bind(this), this.scheduleConfig.timeout * 1000);
