@@ -20,7 +20,6 @@ export class Database {
 	async connect() {
 		await mongoose.connect(this.getConnectionUri())
 			.then(() => {
-				console.log('then');
 				this.logger.log('Successfully connected to database');
 			})
 			.catch(err => {
