@@ -6,7 +6,7 @@
 * 12 Gb RAM
 * 100 RG NVMe
 * x3 VM
-* x50 instances of node & 5 instances of adapter 
+* 100 instances of node & 5 instances of adapter 
 
 ### Описание задачи
 Решение игры "Ожерелье" перебором в рамках распределённой системы.
