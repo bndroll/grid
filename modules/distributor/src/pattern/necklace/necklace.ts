@@ -34,13 +34,13 @@ export class Necklace implements Pattern {
 
 	async generateTasks(grid: string[], batchSize: number): Promise<void> {
 		const size = grid.length;
-		const possibleValues = Array.from({length: 7}, (_, i) => i + 1);
+		const possibleValues = Array.from({ length: 7 }, (_, i) => i + 1);
 		let batch: number[][] = [];
 
 		const generateNext = async (currentSolution: number[], index: number) => {
 			if (index === size) {
 				if (batch.length === batchSize) {
-					const code = generateNecklaceCode(batch, grid);
+					const code = generateNecklaceCode(batch[0], Config.BatchSize, grid);
 					await this.distributor.produce(code);
 					if (!this.findResultRunning) {
 						await this.distributor.findResult();

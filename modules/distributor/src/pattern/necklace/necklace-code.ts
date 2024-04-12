@@ -1,8 +1,27 @@
-export const generateNecklaceCode = (batch: number[][], grid: string[]) => `
+export const generateNecklaceCode = (kandidat: number[], batch: number, grid: string[]) => `
 ({
   exec: function () {
-    let b = [${batch.map(subArray => '[' + subArray.join(',') + ']').join(',')}];
+    let b = [];
+    let c0 = [${kandidat.join(',')}];
     let g = [${grid.join(',')}];
+
+    for (let i = 0; i < batch; i++) {
+        b.push([...c0]); // Push initial array to output
+        for (let j = c0.length - 1; j >= 0; j--) {
+            if (c0[j] < 7) {
+                c0[j]++; // Increment current element if less than 7
+                break; // Break the loop after incrementing
+            } else {
+                c0[j] = 1; // Reset to 1 when reaching 7
+                if (j > 0) {
+                    continue; // Continue the loop to ensure correct incrementation of the third-to-last element
+                } else {
+                    break; // Break the loop if it's the first element
+                }
+            }
+        }
+    }
+
     function validateSolution(solution, grid) {
       const size = grid.length;
       const length = Math.sqrt(size);
@@ -78,11 +97,18 @@ export const generateNecklaceCode = (batch: number[][], grid: string[]) => `
             return false;
           }
         }
-        if (grid[i] === 'b') {
+        else if (grid[i] === 'b') {
           if (![5, 6].includes(solution[i])) {
             return false;
           }
         }
+        else if (grid[i] === 'c') {
+          if (![7].includes(solution[i])) {
+            return false;
+          }
+        }
+        
+        
       }
       return true;
     }

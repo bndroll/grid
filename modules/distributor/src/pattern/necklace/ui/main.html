@@ -21,8 +21,11 @@
         .white {
             background-color: white;
         }
+		.gray {
+			background-color: gray;
+		}
         .soft {
-            background-color: lightgray;
+            background-color: darkturquoise;
         }
 	</style>
 </head>
@@ -64,19 +67,31 @@
   }
 
   function toggleCell() {
-    const cell = this;
-    const value = cell.textContent;
-    const newValue = value === '0' ? 'a' : value === 'a' ? 'b' : '0';
-    cell.textContent = newValue;
-    cell.classList.remove('black', 'white', 'soft');
-    if (newValue === 'a') {
-      cell.classList.add('black');
-    } else if (newValue === 'b') {
-      cell.classList.add('white');
-    } else {
-      cell.classList.add('soft');
-    }
+	  const cell = this;
+	  const value = cell.textContent;
+	  let newValue;
+	  if (value === '0') {
+		  newValue = 'a';
+		  cell.classList.remove('white', 'gray');
+		  cell.classList.add('black');
+	  } else if (value === 'a') {
+		  newValue = 'b';
+		  cell.classList.remove('black', 'gray');
+		  cell.classList.add('white');
+	  } else if (value === 'b') {
+		  newValue = 'c';
+		  cell.classList.remove('black', 'white');
+		  cell.classList.add('gray');
+	  } else if (value === 'c') {
+		  newValue = '0';
+		  cell.classList.remove('black', 'white', 'gray');
+	  } else {
+		  newValue = '0';
+	  }
+	  cell.textContent = newValue;
+	  cell.style.backgroundColor = newValue === 'a' ? 'black' : newValue === 'b' ? 'white' : newValue === 'c' ? 'gray' : '';
   }
+
 
   function saveGrid() {
     const cells = document.querySelectorAll('.cell');
